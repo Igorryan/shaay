@@ -1,10 +1,16 @@
 import { Router } from 'express';
 
+import ensureAdminAuthenticated from '../middlewares/ensureAdminAuthenticated';
+
 // Routes Imported
-import appointmentsRouter from './appointments.routes';
+import companiesRouter from './companies.routes';
+import sessionsRouter from './sessions.routes';
 
 const routes = Router();
 
-routes.use('/appointments', appointmentsRouter);
+companiesRouter.use(ensureAdminAuthenticated);
+
+routes.use('/companies', ensureAdminAuthenticated, companiesRouter);
+routes.use('/sessions', sessionsRouter);
 
 export default routes;

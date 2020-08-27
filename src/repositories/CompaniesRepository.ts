@@ -1,18 +1,13 @@
+import { EntityRepository, Repository } from 'typeorm';
+
 import Company from '../models/Company';
 
-class CompaniesRepository {
-  private companies: Company[];
+@EntityRepository(Company)
+class CompaniesRepository extends Repository<Company> {
+  public async findByEmail(email: string): Promise<Company | null> {
+    const findCompany = await this.findOne({ where: { email } });
 
-  constructor() {
-    this.companies = [];
-  }
-
-  public create(provider: string, date: Date): Company {
-    const company = new Company({ provider, date });
-
-    this.companies.push(company);
-
-    return company;
+    return findCompany || null;
   }
 }
 

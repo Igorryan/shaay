@@ -1,12 +1,47 @@
+import { getRepository } from 'typeorm';
+import { hash } from 'bcryptjs';
+
 import Company from '../models/Company';
 
-// Executar uma determinada responsabilidade (regra de negocio), um repositorio pode ser enviado nos parametros do constructor
-// respeitando Dependency Inversion do principio SOLID.
+interface IRequest {
+  companyName: string;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+}
+
 class CreateCompanyService {
-  // eslint-disable-next-line class-methods-use-this
-  public execute(): string {
-    // Lançamento de excessões
-    return 'ok';
+  public async execute({
+    companyName,
+    name,
+    email,
+    password,
+    phone,
+  }: IRequest): Promise<Company> {
+    const companiesRepository = getRepository(Company);
+
+    const findCompanyInCreatedDate = await companiesRepository.findOne({
+      where: { email },
+    });
+
+    if (findCompanyInCreatedDate) {
+      throw new Error('This email already in use for another company');
+    }
+
+    const hashedPassword = await hash(password, 8);
+
+    const company = companiesRepository.create({
+      companyName,
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+    });
+
+    await companiesRepository.save(company);
+
+    return company;
   }
 }
 
