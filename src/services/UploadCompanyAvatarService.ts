@@ -17,7 +17,7 @@ class UploadCompanyAvatarService {
     const company = await companiesRepository.findOne(id);
 
     if (!company) {
-      throw new Error('Only authenticated companies can change avatar');
+      throw new Error('Only authenticated companies can change avatar.');
     }
 
     if (company.avatar) {
