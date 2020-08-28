@@ -1,20 +1,36 @@
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm';
 
+// Upload files
+import multer from 'multer';
+import uploadConfig from '../config/upload';
+
+// Services
 import CreateCompanyService from '../services/CreateCompanyService';
+import UploadCompanyAvatarService from '../services/UploadCompanyAvatarService';
+
+// Repositories
 import CompaniesRepository from '../repositories/CompaniesRepository';
 
-const companiesRouter = Router();
+// Ensure Authentications
+import ensureAdminAuthenticated from '../middlewares/ensureAdminAuthenticated';
+import ensureAuthenticated from '../middlewares/ensureAuthenticated';
 
 // Responsabilidade: Receber requisição e devolver resposta.
+const companiesRouter = Router();
+const upload = multer(uploadConfig);
 
-companiesRouter.get('/', async (request, response) => {
-  const companiesRepository = getCustomRepository(CompaniesRepository);
+companiesRouter.get(
+  '/',
+  ensureAdminAuthenticated,
+  async (request, response) => {
+    const companiesRepository = getCustomRepository(CompaniesRepository);
 
-  const companies = await companiesRepository.find();
+    const companies = await companiesRepository.find();
 
-  return response.json(companies);
-});
+    return response.json(companies);
+  },
+);
 
 companiesRouter.post('/', async (request, response) => {
   try {
@@ -35,5 +51,25 @@ companiesRouter.post('/', async (request, response) => {
     return response.status(400).json({ error: err.message });
   }
 });
+
+companiesRouter.patch(
+  '/avatar',
+  ensureAuthenticated,
+  upload.single('avatar'),
+  async (request, response) => {
+    try {
+      const uploadCompanyAvatar = new UploadCompanyAvatarService();
+
+      const company = await uploadCompanyAvatar.execute({
+        id: request.company.id,
+        fileName: request.file.filename,
+      });
+
+      return response.json(company);
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
+    }
+  },
+);
 
 export default companiesRouter;
