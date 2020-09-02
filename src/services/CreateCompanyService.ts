@@ -1,6 +1,8 @@
 import { getRepository } from 'typeorm';
 import { hash } from 'bcryptjs';
 
+import AppError from '../errors/AppError';
+
 import Company from '../models/Company';
 
 interface IRequest {
@@ -26,7 +28,7 @@ class CreateCompanyService {
     });
 
     if (findCompanyInCreatedDate) {
-      throw new Error('This email already in use for another company');
+      throw new AppError('This email already in use for another company');
     }
 
     const hashedPassword = await hash(password, 8);

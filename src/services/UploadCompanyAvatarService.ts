@@ -2,6 +2,8 @@ import { getRepository } from 'typeorm';
 import path from 'path';
 import fs from 'fs';
 
+import AppError from '../errors/AppError';
+
 import uploadConfig from '../config/upload';
 import Company from '../models/Company';
 
@@ -17,7 +19,10 @@ class UploadCompanyAvatarService {
     const company = await companiesRepository.findOne(id);
 
     if (!company) {
-      throw new Error('Only authenticated companies can change avatar.');
+      throw new AppError(
+        'Only authenticated companies can change avatar.',
+        401,
+      );
     }
 
     if (company.avatar) {

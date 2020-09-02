@@ -33,23 +33,19 @@ companiesRouter.get(
 );
 
 companiesRouter.post('/', async (request, response) => {
-  try {
-    const { companyName, name, email, password, phone } = request.body;
+  const { companyName, name, email, password, phone } = request.body;
 
-    const createCompany = new CreateCompanyService();
+  const createCompany = new CreateCompanyService();
 
-    const company = await createCompany.execute({
-      companyName,
-      name,
-      email,
-      password,
-      phone,
-    });
+  const company = await createCompany.execute({
+    companyName,
+    name,
+    email,
+    password,
+    phone,
+  });
 
-    return response.status(200).json({ company_id: `${company.id}` });
-  } catch (err) {
-    return response.status(400).json({ error: err.message });
-  }
+  return response.status(200).json({ company_id: `${company.id}` });
 });
 
 companiesRouter.patch(
@@ -57,18 +53,14 @@ companiesRouter.patch(
   ensureAuthenticated,
   upload.single('avatar'),
   async (request, response) => {
-    try {
-      const uploadCompanyAvatar = new UploadCompanyAvatarService();
+    const uploadCompanyAvatar = new UploadCompanyAvatarService();
 
-      const company = await uploadCompanyAvatar.execute({
-        id: request.company.id,
-        fileName: request.file.filename,
-      });
+    const company = await uploadCompanyAvatar.execute({
+      id: request.company.id,
+      fileName: request.file.filename,
+    });
 
-      return response.json(company);
-    } catch (err) {
-      return response.status(400).json({ error: err.message });
-    }
+    return response.json(company);
   },
 );
 
